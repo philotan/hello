@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"log"
@@ -18,22 +19,22 @@ func main() {
 	)
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error answer server: %v\n", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		log.Fatalf("Error: %v", resp.Status)
+		log.Fatalf("Error status server file: %v\n", resp.Status)
 	}
 	out, err := os.Create(filename)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("No create file: %v\n", err)
 	}
 	defer out.Close()
 
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error copy: %v\n", err)
 	}
 	log.Println("Image download")
 
@@ -45,8 +46,10 @@ func main() {
 	case "linux":
 		cmd = exec.Command("xdg-open", filename)
 	default:
-		fmt.Printf("Unknow OS: %v\n", runtime.GOOS)
+		log.Fatalf("Unknow OS: %v\n", runtime.GOOS)
 	}
 
 	cmd.Start()
+	fmt.Println("Нажмите Enter для закрытия...")
+	bufio.NewReader(os.Stdin).ReadBytes('\n')
 }
